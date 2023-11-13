@@ -1,10 +1,10 @@
 import React from 'react';
 import { googleLogo, GitHubLogo } from '../assets/index';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import { useNavigate} from 'react-router-dom';
-import {useDispatch} from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
-import {addUser, removeUser} from '../redux/ecommerceSlice';
+import { addUser, removeUser } from '../redux/ecommerceSlice';
 
 const Login = () => {
     const dispatch = useDispatch();
@@ -12,9 +12,11 @@ const Login = () => {
 
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
-    const handleGoogleLogin = (e) => {
+
+    const handleGoogleLogin = async (e) => {
         e.preventDefault();
-        signInWithPopup(auth, provider).then((result) => {
+        try {
+            const result = await signInWithPopup(auth, provider);
             const user = result.user;
             dispatch(addUser({
                 _id: user.uid,
@@ -26,21 +28,19 @@ const Login = () => {
             setTimeout(() => {
                 navigate("/")
             }, 1500)
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const handleSignOut = () => {
-        signOut(auth)
-            .then(() => {
-                toast.success("Log Out Successfully!");
-                dispatch(removeUser());
-            })
-            .catch((err) => {
-                console.log(err)
-            })
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            toast.success("Log Out Successfully!");
+            dispatch(removeUser());
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
